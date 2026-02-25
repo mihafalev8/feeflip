@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEEFLIP — PumpFun Creator Fee Lottery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #12121a;
+            --card: #1a1a2e;
+            --border: #2a2a40;
+            --accent: #f7931a;
+            --accent2: #ff6b35;
+            --green: #00ff88;
+            --purple: #9945ff;
+            --blue: #14f195;
+            --text: #e0e0e0;
+            --text2: #8888aa;
+            --glow: rgba(247, 147, 26, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb:nth-child(1) { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -100px; animation-delay: 0s; }
+        .orb:nth-child(2) { width: 500px; height: 500px; background: var(--purple); top: 50%; right: -150px; animation-delay: -7s; }
+        .orb:nth-child(3) { width: 400px; height: 400px; background: var(--green); bottom: -100px; left: 30%; animation-delay: -14s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            -webkit-text-fill-color: initial;
+        }
+
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { color: var(--text2); text-decoration: none; font-size: 15px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(247, 147, 26, 0.1);
+        }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            padding: 100px 0 80px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(247, 147, 26, 0.1);
+            border: 1px solid rgba(247, 147, 26, 0.3);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--accent), var(--accent2), #ff4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text2);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        /* LIVE JACKPOT */
+        .jackpot-section {
+            padding: 40px 0 80px;
+        }
+
+        .jackpot-card {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(255, 107, 53, 0.05));
+            border: 1px solid rgba(247, 147, 26, 0.2);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jackpot-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(247, 147, 26, 0.1), transparent);
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .jackpot-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .jackpot-label {
+            font-size: 14px;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .jackpot-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 80px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .jackpot-sub {
+            font-size: 16px;
+            color: var(--text2);
+        }
+
+        .jackpot-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 32px;
+        }
+
+        .jackpot-stat {
+            text-align: center;
+        }
+
+        .jackpot-stat .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .jackpot-stat .label {
+            font-size: 13px;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        /* SLOT MACHINE ANIMATION */
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 40px 0;
+        }
+
+        .slot-reel {
+            width: 80px;
+            height: 100px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slot-reel .symbols {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            animation: slotSpin 2s ease-in-out infinite;
+        }
+
+        .slot-reel:nth-child(2) .symbols { animation-delay: 0.3s; }
+        .slot-reel:nth-child(3) .symbols { animation-delay: 0.6s; }
+
+        .slot-symbol {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        @keyframes slotSpin {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-300px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* HOW IT WORKS */
+        .section { padding: 80px 0; }
+        .section-title {
+            font-size: 42px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .section-sub {
+            font-size: 18px;
+            color: var(--text2);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .step:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+
+        .step-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .step h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        /* LIVE FEED */
+        .live-feed {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .feed-header h3 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .feed-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            animation: fadeIn 0.5s ease;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feed-item .winner {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--green);
+        }
+
+        .feed-item .amount {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .feed-item .time {
+            color: var(--text2);
+            font-size: 12px;
+        }
+
+        /* FEATURES */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* PROBABILITY CALCULATOR */
+        .calc-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .calc-input-group {
+            margin-bottom: 24px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--text2);
+            margin-bottom: 8px;
+        }
+
+        .calc-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .calc-input:focus {
+            border-color: var(--accent);
+        }
+
+        .calc-result {
+            text-align: center;
+        }
+
+        .calc-result .chance {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .calc-result .chance-label {
+            font-size: 16px;
+            color: var(--text2);
+            margin-top: 8px;
+        }
+
+        .probability-bar {
+            width: 100%;
+            height: 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-top: 24px;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+
+        /* TOKENOMICS */
+        .tokenomics-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .pie-chart {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent) 0% 100%
+            );
+            position: relative;
+        }
+
+        .pie-chart::after {
+            content: '100%';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: var(--card);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 0;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--accent); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .jackpot-amount { font-size: 48px; }
+            .steps { grid-template-columns: 1fr 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .calc-grid { grid-template-columns: 1fr; }
+            .jackpot-stats { flex-wrap: wrap; gap: 24px; }
+            .nav-links { display: none; }
+            .tokenomics-visual { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+
+    <div class="container">
+        <!-- NAV -->
+        <nav>
+            <div class="logo">
+                <span class="logo-icon">🎰</span> FEEFLIP
+            </div>
+            <div class="nav-links">
+                <a href="#how">How It Works</a>
+                <a href="#features">Features</a>
+                <a href="#calculator">Calculator</a>
+                <a href="https://github.com/mihafalev8/feeflip" target="_blank">GitHub</a>
+            </div>
+            <a href="https://github.com/mihafalev8/feeflip" class="btn-primary" target="_blank">Get Started</a>
+        </nav>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-badge">Built on Solana &bull; Powered by PumpFun Creator Fees</div>
+            <h1>Every Trade Fills<br>The <span class="gradient">Jackpot</span></h1>
+            <p>Creator fees from your PumpFun token automatically fund a lottery pool. Hold tokens, get a chance to win the entire jackpot in SOL.</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/mihafalev8/feeflip" class="btn-primary" target="_blank">Deploy Your Lottery</a>
+                <a href="#how" class="btn-outline">Learn More</a>
+            </div>
+
+            <!-- Slot Machine -->
+            <div class="slot-machine">
+                <div class="slot-reel">
+                    <div class="symbols">
+                        <div class="slot-symbol">🎰</div>
+                        <div class="slot-symbol">💰</div>
+                        <div class="slot-symbol">🎲</div>
+                        <div class="slot-symbol">🎰</div>
+                    </div>
+                </div>
+                <div class="slot-reel">
+                    <div class="symbols">
+                        <div class="slot-symbol">💰</div>
+                        <div class="slot-symbol">🎰</div>
+                        <div class="slot-symbol">💰</div>
+                        <div class="slot-symbol">🎲</div>
+                    </div>
+                </div>
+                <div class="slot-reel">
+                    <div class="symbols">
+                        <div class="slot-symbol">🎲</div>
+                        <div class="slot-symbol">💰</div>
+                        <div class="slot-symbol">🎰</div>
+                        <div class="slot-symbol">💰</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE JACKPOT -->
+        <section class="jackpot-section">
+            <div class="jackpot-card">
+                <div class="jackpot-content">
+                    <div class="jackpot-label">Current Jackpot Pool</div>
+                    <div class="jackpot-amount" id="jackpotAmount">0.000 SOL</div>
+                    <div class="jackpot-sub">Next drawing in <span id="countdown" style="color: var(--accent); font-weight: 600;">--:--</span></div>
+                    <div class="jackpot-stats">
+                        <div class="jackpot-stat">
+                            <div class="value" id="totalDrawings">0</div>
+                            <div class="label">Total Drawings</div>
+                        </div>
+                        <div class="jackpot-stat">
+                            <div class="value" id="totalWon">0 SOL</div>
+                            <div class="label">Total Won</div>
+                        </div>
+                        <div class="jackpot-stat">
+                            <div class="value" id="holdersCount">0</div>
+                            <div class="label">Eligible Holders</div>
+                        </div>
+                        <div class="jackpot-stat">
+                            <div class="value" id="biggestWin">0 SOL</div>
+                            <div class="label">Biggest Win</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="section" id="how">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-sub">A fully automated lottery powered by PumpFun creator fees. No trust needed — just hold and win.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">💸</div>
+                    <h3>Fees Collected</h3>
+                    <p>Every trade on your token generates creator fees. The bot automatically claims them via PumpPortal API.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">🏦</div>
+                    <h3>Pool Grows</h3>
+                    <p>Claimed fees accumulate in the jackpot pool. The more trading activity, the bigger the prize.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🎲</div>
+                    <h3>Drawing Happens</h3>
+                    <p>At configurable intervals, a weighted random drawing selects a winner. More tokens = higher chance.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🏆</div>
+                    <h3>Winner Gets SOL</h3>
+                    <p>The entire jackpot is sent directly to the winner's wallet in SOL. Announced on Telegram.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE FEED -->
+        <section class="section">
+            <h2 class="section-title">Recent Winners</h2>
+            <p class="section-sub">Live feed of lottery drawings and jackpot wins</p>
+            <div class="live-feed">
+                <div class="feed-header">
+                    <h3><span class="live-dot"></span> Live Feed</h3>
+                    <span style="color: var(--text2); font-size: 13px;">Auto-updating</span>
+                </div>
+                <div id="feedContainer"></div>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="section" id="features">
+            <h2 class="section-title">Features</h2>
+            <p class="section-sub">Everything you need for an automated, fair, and exciting token lottery</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Uses PumpPortal Lightning API for instant fee claiming and SOL distribution. No delays.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>Weighted Fairness</h3>
+                    <p>Probability is proportional to token holdings. Bigger bags = bigger chances, but everyone can win.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📡</div>
+                    <h3>Real-Time Monitoring</h3>
+                    <p>WebSocket connection to PumpPortal tracks every trade in real-time. Always up to date.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Telegram Bot</h3>
+                    <p>Automated announcements for drawings, winners, and jackpot updates. Keep your community engaged.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Fully Configurable</h3>
+                    <p>Set your own intervals, minimum holdings, excluded wallets, and pool thresholds via .env file.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Anti-Sybil</h3>
+                    <p>Minimum token balance filter and excluded wallet list prevent gaming the system.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROBABILITY CALCULATOR -->
+        <section class="section" id="calculator">
+            <h2 class="section-title">Win Probability Calculator</h2>
+            <p class="section-sub">See your chances of winning based on your token holdings</p>
+            <div class="calc-section">
+                <div class="calc-grid">
+                    <div>
+                        <div class="calc-input-group">
+                            <label>Your Token Balance</label>
+                            <input type="number" class="calc-input" id="userTokens" value="100000" placeholder="Enter your tokens">
+                        </div>
+                        <div class="calc-input-group">
+                            <label>Total Token Supply (held by eligible wallets)</label>
+                            <input type="number" class="calc-input" id="totalSupply" value="1000000000" placeholder="Total supply">
+                        </div>
+                        <div class="calc-input-group">
+                            <label>Number of Eligible Holders</label>
+                            <input type="number" class="calc-input" id="numHolders" value="500" placeholder="Number of holders">
+                        </div>
+                        <button class="btn-primary" onclick="calculateProbability()" style="width: 100%; margin-top: 8px;">Calculate</button>
+                    </div>
+                    <div class="calc-result">
+                        <div class="chance" id="winChance">0.01%</div>
+                        <div class="chance-label">Chance to win per drawing</div>
+                        <div class="probability-bar">
+                            <div class="probability-fill" id="probBar" style="width: 0.01%"></div>
+                        </div>
+                        <p style="color: var(--text2); font-size: 14px; margin-top: 16px;" id="expectedWin">
+                            Expected: 1 win every ~10,000 drawings
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUICK START -->
+        <section class="section">
+            <h2 class="section-title">Quick Start</h2>
+            <p class="section-sub">Deploy your own FEEFLIP lottery in under 5 minutes</p>
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 700px; margin: 0 auto;">
+                <pre style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8; color: var(--green); overflow-x: auto;"><code><span style="color: var(--text2);"># Clone the repo</span>
+git clone https://github.com/mihafalev8/feeflip.git
+cd feeflip
+
+<span style="color: var(--text2);"># Install dependencies</span>
+pip install -r requirements.txt
+
+<span style="color: var(--text2);"># Configure your token</span>
+cp .env.example .env
+nano .env
+
+<span style="color: var(--text2);"># Launch the lottery bot</span>
+python feeflip.py</code></pre>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="footer-content">
+                <div class="logo" style="font-size: 20px;">
+                    <span class="logo-icon" style="font-size: 24px;">🎰</span> FEEFLIP
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/mihafalev8/feeflip" target="_blank">GitHub</a>
+                    <a href="https://pumpportal.fun" target="_blank">PumpPortal</a>
+                    <a href="https://pump.fun" target="_blank">PumpFun</a>
+                </div>
+                <div style="color: var(--text2); font-size: 13px;">Built on Solana</div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Simulate jackpot growing
+        let jackpot = 0.847;
+        function updateJackpot() {
+            jackpot += Math.random() * 0.003;
+            document.getElementById('jackpotAmount').textContent = jackpot.toFixed(3) + ' SOL';
+        }
+        setInterval(updateJackpot, 3000);
+
+        // Countdown timer
+        let countdown = 1800;
+        function updateCountdown() {
+            countdown--;
+            if (countdown <= 0) countdown = 1800;
+            const min = Math.floor(countdown / 60).toString().padStart(2, '0');
+            const sec = (countdown % 60).toString().padStart(2, '0');
+            document.getElementById('countdown').textContent = min + ':' + sec;
+        }
+        setInterval(updateCountdown, 1000);
+
+        // Simulate stats
+        let drawings = 47, totalWon = 12.847, holders = 342, biggest = 1.247;
+        document.getElementById('totalDrawings').textContent = drawings;
+        document.getElementById('totalWon').textContent = totalWon.toFixed(3) + ' SOL';
+        document.getElementById('holdersCount').textContent = holders;
+        document.getElementById('biggestWin').textContent = biggest.toFixed(3) + ' SOL';
+
+        // Live feed simulation
+        const addresses = [
+            '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
+            'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+            'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
+            'So11111111111111111111111111111111111111112',
+            'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So',
+        ];
+
+        function addFeedItem() {
+            const container = document.getElementById('feedContainer');
+            const addr = addresses[Math.floor(Math.random() * addresses.length)];
+            const amount = (Math.random() * 2 + 0.1).toFixed(3);
+            const short = addr.slice(0, 6) + '...' + addr.slice(-4);
+            const mins = Math.floor(Math.random() * 30);
+
+            const item = document.createElement('div');
+            item.className = 'feed-item';
+            item.innerHTML = `
+                <span>🏆</span>
+                <span class="winner">${short}</span>
+                <span class="amount">${amount} SOL</span>
+                <span class="time">${mins}m ago</span>
+            `;
+            container.insertBefore(item, container.firstChild);
+            if (container.children.length > 8) container.removeChild(container.lastChild);
+        }
+
+        // Initial feed
+        for (let i = 0; i < 6; i++) addFeedItem();
+        setInterval(addFeedItem, 8000);
+
+        // Probability calculator
+        function calculateProbability() {
+            const userTokens = parseFloat(document.getElementById('userTokens').value) || 0;
+            const totalSupply = parseFloat(document.getElementById('totalSupply').value) || 1;
+            const chance = (userTokens / totalSupply) * 100;
+            const capped = Math.min(chance, 100);
+
+            document.getElementById('winChance').textContent = capped < 0.01 ? capped.toExponential(2) + '%' : capped.toFixed(2) + '%';
+            document.getElementById('probBar').style.width = Math.min(capped, 100) + '%';
+
+            const expected = chance > 0 ? Math.round(1 / (chance / 100)) : Infinity;
+            document.getElementById('expectedWin').textContent =
+                expected === Infinity ? 'Need more tokens!' : `Expected: 1 win every ~${expected.toLocaleString()} drawings`;
+        }
+
+        calculateProbability();
+    </script>
+</body>
+</html>
