@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+*.log
+feeflip_stats.json
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
